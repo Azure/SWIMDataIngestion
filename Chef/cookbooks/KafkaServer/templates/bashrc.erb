@@ -1,0 +1,27 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+
+# aliases
+alias sa='grep 'alias' ~/.bashrc'
+alias c='clear'
+alias ll='ls -alF'
+alias ktls='kafka-topics.sh --list --bootstrap-server localhost:9092'
+alias ktc='kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic'
+alias ktd='kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic'
+alias ktrm='kafka-topics.sh --delete --bootstrap-server localhost:9092 --topic'
+alias kcs='connect-standalone.sh /opt/kafka/config/connect-standalone.properties'
+alias kcst='connect-standalone.sh /opt/kafka/config/connect-standalone.properties /opt/kafka/config/connect-solace-tfms-source.properties'
+alias ksm='kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --topic'
+alias kssm='kafka-console-consumer.sh --from-beginning --max-messages 1 --bootstrap-server localhost:9092 --topic'
+
+export KAFKA_HOME=/opt/kafka
+export PATH=$KAFKA_HOME/bin:$PATH

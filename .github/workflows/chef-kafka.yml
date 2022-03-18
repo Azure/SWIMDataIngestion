@@ -1,0 +1,86 @@
+name: 'Chef-ApacheKafka'
+
+on:
+  push:
+      paths-ignore:
+        - '.devcontainer/**'
+        - 'Infrastructure/**'
+        - 'Notebooks'
+        - '.github/workflows/terraform-azure.yml'
+      branches:
+        - main
+  pull_request:
+    paths-ignore:
+        - '.devcontainer/**'
+        - 'Infrastructure/**'
+        - 'Notebooks'
+        - '.github/workflows/terraform-azure.yml'
+    branches:
+      - main
+
+jobs:
+  UnitTests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Chef
+        uses: actionshub/chef-install@main
+
+      - name: Static Code Analysis
+        id: CookStyle
+        run: cookstyle --display-cop-names --extra-details
+        working-directory: Chef/cookbooks/KafkaServer/
+
+      - name: Unit Testing with chefspec
+        id: ChefSpec
+        env:
+          CHEF_LICENSE: accept-no-persist
+        run: chef exec rspec
+        working-directory: Chef/cookbooks/KafkaServer/
+
+  IntegrationTests:
+    needs: [UnitTests]
+    runs-on: ubuntu-latest
+    env:
+      PBLC_VM_SSH: ${{secrets.PBLC_VM_SSH}}
+      PRVT_VM_SSH: ${{secrets.PRVT_VM_SSH}}
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+      
+    - name: Create SSH key
+      run: |
+          mkdir -p ~/.ssh/
+          echo "$PBLC_VM_SSH" > ~/.ssh/vm_ssh.pub
+          sudo chmod 400 ~/.ssh/vm_ssh.pub
+          echo "$PRVT_VM_SSH" > ~/.ssh/vm_ssh
+          sudo chmod 400 ~/.ssh/vm_ssh
+      shell: bash
+
+    - name: Install Chef
+      uses: actionshub/chef-install@main
+    
+    - name: Test-Kitchen
+      id: kitchentest
+      env:
+        CHEF_LICENSE: accept-no-persist
+        KITCHEN_YAML: kitchen.azure.yml
+        SSH_KEY: ~/.ssh/vm_ssh
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        AZURE_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        RG: MZVTestKitchen
+        NETWORK_RG: MZVDevNetwork
+        VNET: MZVDev
+        SUBNET: dev
+      run:  kitchen test
+      working-directory: Chef/cookbooks/KafkaServer/

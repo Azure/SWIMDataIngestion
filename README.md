@@ -1,33 +1,92 @@
-# Project
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+# Automating Data Analytics Environments
 
-As the maintainer of this project, please make a few updates:
+Demo project presented at [Automate for Good 2021](https://chef-hackathon.devpost.com/).
+It shows how to integrate Chef Infra, Chef InSpec, Test Kitchen, Terraform, Terraform Cloud, and GitHub Actions in order to fully automate and create Data Analytics environments.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+This specific demo uses FAA's System Wide Information System (SWIM) and connects to TFMS ( Traffic Flow Management System ) using a Kafka server.
+More information about SWIM and TFMS can be found [here.](https://www.faa.gov/air_traffic/technology/swim/)
 
-## Contributing
+It also uses a Databricks cluster in order to analyze the data.
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+## Project Structure
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+This project has the following folders which make them easy to reuse, add or remove.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+```ssh
+.
+├── .devcontainer
+├── .github
+│   └── workflows
+├── LICENSE
+├── README.md
+├── Chef
+│   ├── .chef
+│   ├── cookbooks
+│   └── data_bags
+├── Infrastructure
+│   ├── terraform-azure
+│   └── terraform-databricks
+└── Notebooks
+```
 
-## Trademarks
+## SWIM Architecture
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+![SWIM](http://www.aviationtoday.com/wp-content/uploads/2015/10/FAA20SWIM.png)
+
+## Architecture
+
+This is the architecture of the project. Which is basically a publish and subscribe architecture.
+
+![Architecture](Diagrams/Architecture.png)
+
+## CI/CD pipeline Architecture
+
+It uses GitHub Actions in order to orchestrate the CI/CD pipeline.
+
+![CI/CD](Diagrams/CICDArchitecture.png)
+
+## Pre-requisites
+
+This project requires the following versions:
+
+- **Terraform** =>1.0.8
+- **Azure provider** 2.80.0
+- **Databricks provider** 0.3.5
+- **Azure CLI** 2.29.0
+- **ChefDK** 4.13.3
+
+It also uses GitHub Secrets to store all required keys and secrets. The following GitHub Secrets need to be created ahead of time:
+
+- **ARM_SUBSCRIPTION_ID** - Your Azure Subscription ID.
+- **ARM_CLIENT_ID** - Your Azure Client ID.
+- **ARM_CLIENT_SECRET** - Your Azure Client Secret.
+- **ARM_TENANT_ID** - Your Azure Tenant ID.
+- **PBLC_VM_SSH** - Public SSH key of the VM.
+- **PRVT_VM_SSH** - Private SSH key of the VM.
+- **CHF_VLDTR** - Chef Validator key.
+- **TF_API_TOKEN** - Terraform Cloud API Token.
+
+## GitHub Workflows
+
+There are 2 GitHub Actions Workflows that are used to automate the Infrastructure which will host the Data Analytics environment using Terraform and the post-provisioning configurations required to connect to FAA's System Wide Information System (SWIM) and connects to TFMS ( Traffic Flow Management System ) datasource using **Chef Infra**.
+
+- **Chef-ApacheKafka** - Performs Static code analysis using **Cookstyle**, unit testing using **Chef InSpec**, and Integration tests using **Test Kitchen** to make sure the cookbook is properly tested before uploading it to the Chef Server.
+
+![Chef-ApacheKafka](Diagrams/Chef-ApacheKafka.png)
+
+- **Terraform-Azure** - Performs Terraform deployment using Terraform Cloud as remote state. It also creates a Databricks cluster and deploys a starter python notebook to test the connectivity to the Kafka server and retrieves the messages. All the infrastructure is created with proper naming convention and tagging.
+
+![Terraform-Azure](Diagrams/Terraform-Azure.png)
+
+## devcontainer
+
+This repository also comes with a devcontainer which can be used to develop and test the project using Docker containers or GitHub Codespaces.
+
+## Caution
+
+Be aware that by running this project your account will get billed.
+
+## Authors
+
+- Marcelo Zambrana

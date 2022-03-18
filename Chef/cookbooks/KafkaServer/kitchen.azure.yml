@@ -1,0 +1,43 @@
+---
+driver:
+  name: azurerm
+  subscription_id: <%= ENV['ARM_SUBSCRIPTION_ID'] %>
+  location: 'East US2'
+  machine_size: 'Standard_DS1_v2'
+  public_ip: true
+  explicit_resource_group_name: <%= ENV['RG']%>
+  destroy_explicit_resource_group: false
+  destroy_resource_group_contents: true
+
+transport:
+  username: kafkaAdmin
+  ssh_key: <%= ENV['SSH_KEY'] %>
+
+provisioner:
+  name: chef_zero
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: CentOS-79
+    driver:
+      use_managed_disk: true
+      image_urn: OpenLogic:CentOS:7_9-gen2:latest
+      vnet_id: /subscriptions/<%= ENV['ARM_SUBSCRIPTION_ID'] %>/resourceGroups/<%=ENV['NETWORK_RG'] %>/providers/Microsoft.Network/virtualNetworks/<%= ENV['VNET'] %>
+      subnet_id: <%= ENV['SUBNET'] %>
+      vm_name: test-kitchen-azure
+      vm_tags:
+        Environment: Test
+        Project: AutomateForGood
+        BillingCode: Internal
+        Customer: Chef
+
+suites:
+  - name: default
+    run_list:
+      - recipe[KafkaServer::default]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:

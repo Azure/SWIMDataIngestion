@@ -1,0 +1,15 @@
+[Unit]
+Description=zookeeper
+After=syslog.target network.target
+
+[Service]
+Type=simple
+
+User=kafkaAdmin
+Group=kafkaAdmin
+
+ExecStart=/opt/kafka/bin/zookeeper-server-start.sh /opt/kafka/config/zookeeper.properties
+ExecStop=/opt/kafka/bin/zookeeper-server-stop.sh
+
+[Install]
+WantedBy=multi-user.target
