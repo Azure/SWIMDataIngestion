@@ -4,7 +4,8 @@
 #
 # Copyright:: 2019, The Authors, All Rights Reserved.
 
-package %w(java-1.8.0-openjdk-devel git tmux) do
+# package %w(java-1.8.0-openjdk-devel git tmux) do
+package %w(java-11-openjdk-devel git tmux) do
   action :install
 end
 
@@ -95,6 +96,8 @@ template 'Configure Solace Connector in Stand Alone mode' do
 end
 
 TFMSConfig = data_bag_item('connConfig', 'TFMS')
+TBFMConfig = data_bag_item('connConfig', 'TBFM')
+STDDSConfig = data_bag_item('connConfig', 'STDDS')
 
 template 'Configure TFMS Source Connector' do
   source 'connect-solace-source.properties.erb'
@@ -105,7 +108,36 @@ template 'Configure TFMS Source Connector' do
     SWIMEndpoint: TFMSConfig['endPointJMS'],
     SWIMUserNaMe: TFMSConfig['userName'],
     Password: TFMSConfig['secret'],
-    SWIMQueue: TFMSConfig['queueName']
+    SWIMQueue: TFMSConfig['queueName'],
+    SWIMVPN: TFMSConfig['vpn']
+  )
+end
+
+template 'Configure TBFM Source Connector' do
+  source 'connect-solace-source.properties.erb'
+  path '/opt/kafka/config/connect-solace-tbfm-source.properties'
+  variables(
+    connectorName: 'solaceConnectorTBFM',
+    kafkaTopic: 'tbfm',
+    SWIMEndpoint: TBFMConfig['endPointJMS'],
+    SWIMUserNaMe: TBFMConfig['userName'],
+    Password: TBFMConfig['secret'],
+    SWIMQueue: TBFMConfig['queueName'],
+    SWIMVPN: TBFMConfig['vpn']
+  )
+end
+
+template 'Configure STDDS Source Connector' do
+  source 'connect-solace-source.properties.erb'
+  path '/opt/kafka/config/connect-solace-stdds-source.properties'
+  variables(
+    connectorName: 'solaceConnectorSTDDS',
+    kafkaTopic: 'stdds',
+    SWIMEndpoint: STDDSConfig['endPointJMS'],
+    SWIMUserNaMe: STDDSConfig['userName'],
+    Password: STDDSConfig['secret'],
+    SWIMQueue: STDDSConfig['queueName'],
+    SWIMVPN: STDDSConfig['vpn']
   )
 end
 
@@ -144,6 +176,18 @@ execute 'Create TFMS topic' do
   command '/opt/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tfms'
   action :run
   not_if { ::Dir.exist?('/tmp/kafka-logs/tfms-0') }
+end
+
+execute 'Create TBFM topic' do
+  command '/opt/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tbfm'
+  action :run
+  not_if { ::Dir.exist?('/tmp/kafka-logs/tbfm-0') }
+end
+
+execute 'Create STDDS topic' do
+  command '/opt/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic stdds'
+  action :run
+  not_if { ::Dir.exist?('/tmp/kafka-logs/stdds-0') }
 end
 
 file 'clean' do

@@ -41,9 +41,9 @@ More information on this topic [here](https://docs.microsoft.com/en-us/azure/vir
 
 This terraform script has been tested using the following versions:
 
-- Terraform =>1.0.8
-- Azure provider 2.80.0
-- Azure CLI 2.29.0
+- Terraform =>1.5.7
+- Azure provider 3.74.0
+- Azure CLI 2.52.0
 
 ## VM Authentication
 
@@ -71,6 +71,13 @@ You can create a free Terraform Cloud account [here](https://app.terraform.io).
 This terraform script uses the [cloud-init](https://cloudinit.readthedocs.io/en/latest/topics/modules.html?highlight=chef#chef) in order to automatically bootstrap the VM and add it as node to the Chef Server which does all the required post-provisioning configuration.
 
 ## Useful Apache Kafka commands
+
+If all goes well, systemd should report running state on both service's status
+
+```ssh
+sudo systemctl status zookeeper.service
+sudo systemctl status kafka.service
+```
 
 Create a topic
 

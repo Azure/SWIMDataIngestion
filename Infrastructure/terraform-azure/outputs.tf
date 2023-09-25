@@ -6,7 +6,7 @@ output "generic_RG" {
 output "subnets" {
   value = {
     for subnet in azurerm_subnet.subnets :
-    subnet.name => subnet.address_prefix
+    subnet.name => subnet.address_prefixes
   }
   description = "subnets created."
 }
@@ -14,7 +14,7 @@ output "subnets" {
 output "dataBricksSubnets" {
   value = {
     for subnet in azurerm_subnet.dbSubnets :
-    subnet.name => subnet.address_prefix
+    subnet.name => subnet.address_prefixes
   }
   description = "Databricks dedicated subnets."
 }

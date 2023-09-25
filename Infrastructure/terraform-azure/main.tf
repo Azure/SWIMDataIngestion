@@ -6,9 +6,12 @@ terraform {
       name = "AfG-Infra"
     }
   }
-  required_version = "= 1.0.8"
+  required_version = "= 1.5.7"
   required_providers {
-    azurerm = "=2.80.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "= 3.74.0"
+    }
   }
 }
 

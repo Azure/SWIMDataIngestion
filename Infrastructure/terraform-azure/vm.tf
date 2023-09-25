@@ -68,7 +68,7 @@ resource "azurerm_linux_virtual_machine" "kafkaServer" {
     node_name: "${var.suffix}-KafkaServer"
     run_list: "recipe[KafkaServer]"
     validation_name: "chambras-validator"
-    validation_cert: "${file("${var.validatorCertPath}")}"
+    validation_cert: "${file(var.validatorCertPath)}"
 
   output: {all: '| tee -a /var/log/cloud-init-output.log'}
   runcmd:

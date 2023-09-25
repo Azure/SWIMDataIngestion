@@ -3,7 +3,7 @@
 # The InSpec reference, with examples and extensive documentation, can be
 # found at https://www.inspec.io/docs/reference/resources/
 
-%w(java-1.8.0-openjdk-devel git tmux).each do |package|
+%w(java-11-openjdk-devel git tmux).each do |package|
   describe package(package) do
     it { should be_installed }
   end
@@ -36,7 +36,7 @@ describe service('kafka') do
   it { should be_running }
 end
 
-describe file('/opt/kafka/libs/pubsubplus-connector-kafka-source-2.1.0.jar') do
+describe file('/opt/kafka/libs/pubsubplus-connector-kafka-source-3.0.0.jar') do
   it { should exist }
 end
 
@@ -45,5 +45,13 @@ describe file('/opt/kafka/config/connect-standalone.properties') do
 end
 
 describe file('/opt/kafka/config/connect-solace-tfms-source.properties') do
+  it { should exist }
+end
+
+describe file('/opt/kafka/config/connect-solace-tbfm-source.properties') do
+  it { should exist }
+end
+
+describe file('/opt/kafka/config/connect-solace-stdds-source.properties') do
   it { should exist }
 end

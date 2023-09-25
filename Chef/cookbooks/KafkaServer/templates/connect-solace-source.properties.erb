@@ -8,7 +8,7 @@ kafka.topic=<%= @kafkaTopic %>
 sol.host=<%= @SWIMEndpoint %>:<%= node[:kafkaServer][:SWIMEndpointPort] %>
 sol.username=<%= @SWIMUserNaMe %>
 sol.password=<%= @Password %>
-sol.vpn_name=<%= node[:kafkaServer][:SWIMVPN]  %>
+sol.vpn_name=<%= @SWIMVPN %>
 sol.queue=<%= @SWIMQueue %>
 sol.message_callback_on_reactor=false
 # sol.topics=soltest

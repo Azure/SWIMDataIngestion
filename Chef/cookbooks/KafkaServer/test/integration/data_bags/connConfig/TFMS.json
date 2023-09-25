@@ -4,5 +4,6 @@
   "queueName": "",
   "endPointJMS": "",
   "connectionFactory": "",
-  "secret": ""
+  "secret": "",
+  "vpn": ""
 }

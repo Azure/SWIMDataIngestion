@@ -13,7 +13,11 @@ describe 'KafkaServer::Install' do
   end
 
   before do
-    stub_data_bag_item('connConfig', 'TFMS').and_return(id: 'TFMS', userName: '', queueName: '', endPointJMS: '', connectionFactory: '', secret: '')
+    stub_data_bag_item('connConfig', 'TFMS').and_return(id: 'TFMS', userName: '', queueName: '', endPointJMS: '', connectionFactory: '', secret: '', vpn: '')
+
+    stub_data_bag_item('connConfig', 'TBFM').and_return(id: 'TBFM', userName: '', queueName: '', endPointJMS: '', connectionFactory: '', secret: '', vpn: '')
+
+    stub_data_bag_item('connConfig', 'STDDS').and_return(id: 'STDDS', userName: '', queueName: '', endPointJMS: '', connectionFactory: '', secret: '', vpn: '')
   end
 
   it 'converges successfully' do
@@ -21,7 +25,7 @@ describe 'KafkaServer::Install' do
   end
 
   it 'installs java, git and tmux' do
-    expect(chef_run).to install_package 'java-1.8.0-openjdk-devel, git, tmux'
+    expect(chef_run).to install_package 'java-11-openjdk-devel, git, tmux'
   end
 
   it 'creates kafkaAdmin group' do
@@ -61,8 +65,34 @@ describe 'KafkaServer::Install' do
     )
   end
 
-  it 'creates porper permissions' do
+  it 'creates proper permissions' do
     expect(chef_run).to run_execute('chown -R kafkaAdmin:kafkaAdmin /opt/kafka*')
+  end
+
+  it 'gets solace connector' do
+    expect(chef_run).to create_remote_file('/tmp/solace-connector.zip').with(
+      source: 'https://solaceproducts.github.io/pubsubplus-connector-kafka-source/downloads/pubsubplus-connector-kafka-source-3.0.0.zip'
+    )
+  end
+
+  it 'copies solace connector to kafka libs' do
+    expect(chef_run).to run_execute('mv /tmp/solace-connector/pubsubplus-connector-kafka-source-3.0.0/lib/*.jar /opt/kafka/libs/')
+  end
+
+  it 'creates Solace Connector in Stand Alone mode config file' do
+    expect(chef_run).to create_template('/opt/kafka/config/connect-standalone.properties')
+  end
+
+  it 'creates TFMS config file' do
+    expect(chef_run).to create_template('/opt/kafka/config/connect-solace-tfms-source.properties')
+  end
+
+  it 'creates TBFM config file' do
+    expect(chef_run).to create_template('/opt/kafka/config/connect-solace-tbfm-source.properties')
+  end
+
+  it 'creates STDDS config file' do
+    expect(chef_run).to create_template('/opt/kafka/config/connect-solace-stdds-source.properties')
   end
 
   it 'creates zookeeper.service' do
