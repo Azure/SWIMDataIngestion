@@ -44,6 +44,22 @@ It uses GitHub Actions in order to orchestrate the CI/CD pipeline.
 
 ![CI/CD](Diagrams/CICDArchitecture.png)
 
+### Dataflow
+
+1. Developers work on either the Infrastructure or the Configuration code.
+
+   1.1 Infrastructure code uses Terraform.
+
+   1.2 Configuration code uses Chef.
+
+2. Developers push their code to the GitHub repository using a GitHub pull request.
+
+3. The pull request triggers a GitHub Actions workflow. The workflow runs the code through a series of tests. If the changes are configuration-related, the workflow runs Chef InSpec and Test Kitchen to test the code. Once the tests are completed, it reports the results back to GitHub. If the changes are infrastructure-related, the workflow also creates a Terraform plan and posts it as a comment in the pull request. The plan shows the changes that would be applied to the infrastructure if the pull request is approved.
+
+4. If the changes are infrastructure-related, the workflow runs Terraform Cloud's remote state. Terraform Cloud is a hosted service that provides remote state management, locking, and other features.
+
+5. If the tests pass, and the pull request is approved, the workflow merges the code into the `main` branch. Once merged the Actions workflow pushes changes in either the infrastructure or in the configurations for Kafka, Azure Databricks, and so on.
+
 ## Pre-requisites
 
 This project requires the following versions:

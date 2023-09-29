@@ -4,7 +4,6 @@
 #
 # Copyright:: 2019, The Authors, All Rights Reserved.
 
-# package %w(java-1.8.0-openjdk-devel git tmux) do
 package %w(java-11-openjdk-devel git tmux) do
   action :install
 end
